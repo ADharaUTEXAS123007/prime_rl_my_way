@@ -5,12 +5,39 @@
 # LICENSE file in the root directory of this source tree.
 
 from dataclasses import dataclass
+from functools import wraps
 from typing import Literal
 
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torchtitan.distributed.expert_parallel import expert_parallel
+from torchtitan.distributed.expert_parallel import ExpertParallel
+
+# Create a decorator function wrapper for ExpertParallel
+def expert_parallel(func):
+    """
+    Decorator wrapper for ExpertParallel class.
+    ExpertParallel is a class, not a callable decorator, so we wrap it.
+    """
+    # Create a single instance to reuse
+    _ep_instance = None
+    
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        nonlocal _ep_instance
+        if _ep_instance is None:
+            _ep_instance = ExpertParallel()
+        
+        # Try to use as context manager if it supports it
+        if hasattr(_ep_instance, '__enter__') and hasattr(_ep_instance, '__exit__'):
+            with _ep_instance:
+                return func(*args, **kwargs)
+        else:
+            # If not a context manager, just call the function
+            # ExpertParallel might handle parallelism internally
+            return func(*args, **kwargs)
+    
+    return wrapper
 
 
 @dataclass

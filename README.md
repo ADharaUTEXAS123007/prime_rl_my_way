@@ -28,6 +28,8 @@ PRIME-RL: Async RL Training at Scale
 </p>
 
 ## Overview
+This is a modification of PRIME-RL library I did to make it work on Texas Advanced Computing Center (vista) machines.
+There was several issues because of aarch64 achitecture in VISTA-GH200 nodes. I had to make the library compatible with correct version of vllm.
 
 PRIME-RL is a framework for large-scale asynchronous reinforcement learning. It is designed to be easy-to-use and hackable, yet capable of scaling to 1000+ GPUs. Beyond that, here is why we think you might like it:
 

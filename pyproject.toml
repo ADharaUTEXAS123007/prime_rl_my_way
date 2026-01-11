@@ -7,7 +7,7 @@ requires-python = "~=3.12.0"
 dependencies = [
     "beartype>=0.21.0",
     "cydifflib>=1.2.0",
-    "datasets>=4.0.0",
+    "datasets",
     "jaxtyping>=0.3.2",
     "liger-kernel>=0.5.10",
     "loguru>=0.7.3",
@@ -17,29 +17,23 @@ dependencies = [
     "pydantic-settings>=2.10.1",
     "pylatexenc>=2.10",
     "tomli>=2.2.1",
-    "torch>=2.8.0",
-    "transformers>=4.56.0",
     "uvloop>=0.21.0",
-    "vllm==0.10.2",
-    "wandb>=0.20.1",
-    "lovely-tensors>=0.1.18",
+    "wandb",
     "rich>=14.0.0",
     "tomli-w>=1.2.0",
     "textarena>=0.6.16",
     "nltk>=3.9.1",
     "math-verify>=0.8.0",
-    "torchdata>=0.11.0",
-    "accelerate>=1.10.1",
     "blobfile>=3.0.0",
     "reverse-text>=0.1.4",
-    "torchtitan",
-    "dion",
     "reverse-text",
-    "verifiers>=0.1.8",
     "prime-evals>=0.1.5",
     "prime-sandboxes>=0.2.5",
-    "flash-attn>=2.8.3",
-    "prime>=0.5.0"
+    "prime>=0.5.0",
+    "torch==2.9.1+cu128",
+    "accelerate>=1.10.1",
+    "dion",
+    "lovely-tensors>=0.1.18",
 ]
 
 [project.scripts]
@@ -64,19 +58,22 @@ dev = [
 [tool.uv]
 no-build-isolation-package = ["flash-attn"]
 prerelease = "allow"
+required-environments = [
+    "sys_platform == 'linux' and platform_machine == 'aarch64'"
+]
+
+# ============================
+# Required Environment Targets
+# ============================
+#[tool.uv.required-environments]
+#aarch64-linux = { platform_machine = "aarch64", sys_platform = "linux" }
+
 
 [tool.uv.sources]
-torch = { index = "pytorch-cu128" }
 reverse-text = { index = "primeintellect" }
 verifiers = { git = "https://github.com/PrimeIntellect-ai/verifiers.git", rev = "ca6aca7" }
 dion = { git = "https://github.com/samsja/dion.git", rev = "main" }
-torchtitan = { git = "https://github.com/pytorch/torchtitan", rev = "a1fdd7e" }
-
-[tool.uv.extra-build-dependencies]
-flash-attn = [{ requirement = "torch", match-runtime = true }]
-
-[tool.uv.extra-build-variables]
-flash-attn = { FLASH_ATTENTION_SKIP_CUDA_BUILD = "TRUE" }
+torch = { index = "pytorch-cu128" }  # Add this line
 
 [[tool.uv.index]]
 name = "primeintellect"
@@ -84,8 +81,7 @@ url = "https://hub.primeintellect.ai/primeintellect/simple/"
 
 [[tool.uv.index]]
 name = "pytorch-cu128"
-url = "https://download.pytorch.org/whl/test/cu128"
-explicit = true
+url = "https://download.pytorch.org/whl/cu128"
 
 [tool.ruff.lint]
 select = ["F", "I"]
@@ -107,3 +103,4 @@ build-backend = "hatchling.build"
 
 [tool.hatch.metadata]
 allow-direct-references = true
+

@@ -36,8 +36,8 @@ modules_to_save = [
 lr = 1e-5
 
 [orchestrator]
-batch_size = 512
-rollouts_per_example = 8
+batch_size = 2
+rollouts_per_example = 2
 seq_len = 2048
 
 [orchestrator.sampling]
@@ -48,3 +48,4 @@ id = "alphabet-sort"
 args = { min_turns = 3, max_turns = 3, min_names_per_turn = 1, max_names_per_turn = 4, similarity_power = 8, power_per_turn = false }
 
 [inference] # Default inference config
+gpu_memory_utilization = 0.80

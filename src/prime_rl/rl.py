@@ -469,7 +469,7 @@ def rl(config: RLConfig):
             with open(inference_file, "wb") as f:
                 tomli_w.dump(config.inference.model_dump(exclude_none=True, mode="json"), f)
 
-            inference_cmd = ["uv", "run", "inference", "@", inference_file.as_posix()]
+            inference_cmd = [sys.executable, "-m", "prime_rl.inference.server", "@", inference_file.as_posix()]
             logger.info(f"Starting inference process on GPU(s) {' '.join(map(str, config.inference_gpu_ids))}")
             logger.debug(f"Inference start command: {' '.join(inference_cmd)}")
             # If we don't log stdout, the server hangs
@@ -503,9 +503,9 @@ def rl(config: RLConfig):
             tomli_w.dump(config.orchestrator.model_dump(exclude_none=True, mode="json"), f)
 
         orchestrator_cmd = [
-            "uv",
-            "run",
-            "orchestrator",
+            sys.executable,
+            "-m",
+            "prime_rl.orchestrator.orchestrator",
             "@",
             orchestrator_file.as_posix(),
         ]
@@ -519,7 +519,7 @@ def rl(config: RLConfig):
                 env={
                     **os.environ,
                     "LOGURU_FORCE_COLORS": "1",
-                    "WANDB_PROGRAM": "uv run rl",
+                    "WANDB_PROGRAM": "rl",
                     "WANDB_ARGS": json.dumps(start_command),
                 },
             )
@@ -542,10 +542,6 @@ def rl(config: RLConfig):
             tomli_w.dump(config.trainer.model_dump(exclude_none=True, mode="json"), f)
 
         trainer_cmd = [
-            "uv",
-            "run",
-            "env",
-            "PYTHONUNBUFFERED=1",
             "torchrun",
             f"--rdzv-endpoint=localhost:{get_free_port()}",
             f"--rdzv-id={uuid.uuid4().hex}",
@@ -569,7 +565,8 @@ def rl(config: RLConfig):
                     **os.environ,
                     "CUDA_VISIBLE_DEVICES": ",".join(map(str, config.trainer_gpu_ids)),
                     "LOGURU_FORCE_COLORS": "1",
-                    "WANDB_PROGRAM": "uv run rl",
+                    "PYTHONUNBUFFERED": "1",
+                    "WANDB_PROGRAM": "rl",
                     "WANDB_ARGS": json.dumps(start_command),
                 },
                 stdout=log_file,
